@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Börsen Überblick</title>
+  <meta name="description" content="Daily informational stock market overview videos, delivered to your TikTok drafts.">
+  <link rel="icon" href="icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header><img src="icon.png" alt=""><h1>Börsen Überblick</h1></header>
+
+  <p>Börsen Überblick creates <strong>one short video per trading day</strong> that summarizes what happened on the
+    stock market: index and sector moves and stocks with notable trends, based on public market data.</p>
+  <p class="notice">No investment advice – information only about what is currently happening on the market.
+    <br><span class="muted">Keine Anlageempfehlung – nur Information, was gerade am Markt passiert.</span></p>
+
+  <div class="card">
+    <h2 style="margin-top:0">Connect your TikTok account</h2>
+    <ol>
+      <li>Click <em>Continue with TikTok</em> and approve access.</li>
+      <li>Every trading day after market close, the video is uploaded to your <strong>TikTok inbox as a draft</strong>.</li>
+      <li>You get a TikTok notification, review the draft, edit the caption and decide yourself whether to publish it.</li>
+    </ol>
+    <p class="muted">Requested permissions: <code>user.info.basic</code> (show which account is connected) and
+      <code>video.upload</code> (upload drafts). Nothing is published without your action.</p>
+    <button class="btn" id="login">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="currentColor" d="M34.1 10.6A8.6 8.6 0 0 1 32 5h-6.3v25.2a5.3 5.3 0 1 1-3.7-5V18.8a11.6 11.6 0 1 0 10 11.4V17.4a14.8 14.8 0 0 0 8.6 2.8v-6.3a8.6 8.6 0 0 1-6.5-3.3z"/></svg>
+      Continue with TikTok
+    </button>
+    <p id="msg" class="err"></p>
+  </div>
+
+  <footer><a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a></footer>
+</main>
+<script src="config.js"></script>
+<script>
+  document.getElementById("login").addEventListener("click", () => {
+    const c = window.TIKTOK_CONFIG;
+    if (!c.clientKey || c.clientKey.startsWith("DEIN_")) {
+      document.getElementById("msg").textContent = "Client key is not configured yet (config.js).";
+      return;
+    }
+    const rnd = crypto.getRandomValues(new Uint8Array(12));
+    const state = "web-" + Array.from(rnd, b => b.toString(16).padStart(2, "0")).join("");
+    try { sessionStorage.setItem("tt_state", state); } catch (e) {}
+    const p = new URLSearchParams({ client_key: c.clientKey, scope: c.scopes, response_type: "code",
+                                    redirect_uri: c.redirectUri, state });
+    location.href = "https://www.tiktok.com/v2/auth/authorize/?" + p.toString();
+  });
+</script>
+</body>
+</html>

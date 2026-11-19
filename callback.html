@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Börsen Überblick – Connected</title>
+  <link rel="icon" href="icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header><a href="./"><img src="icon.png" alt=""></a><h1>Börsen Überblick</h1></header>
+  <div class="card" id="result"><p class="muted">Checking authorization…</p></div>
+  <footer><a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a></footer>
+</main>
+<script>
+  // Die Seite sendet nichts weiter: Der Code wird nur angezeigt und auf dem Server in tiktok_auth.py eingefügt.
+  const box = document.getElementById("result");
+  const q = new URLSearchParams(location.search);
+  let expected = null;
+  try { expected = sessionStorage.getItem("tt_state"); } catch (e) {}
+  const esc = s => String(s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+
+  if (q.get("error")) {
+    box.innerHTML = `<h2 class="err" style="margin-top:0">Connection cancelled</h2>
+      <p>${esc(q.get("error_description") || q.get("error"))}</p><p><a href="./">Try again</a></p>`;
+  } else if (!q.get("code")) {
+    box.innerHTML = `<p>No authorization code found. <a href="./">Start here</a>.</p>`;
+  } else if (expected && q.get("state") !== expected) {
+    box.innerHTML = `<h2 class="err" style="margin-top:0">Security check failed</h2>
+      <p>The state parameter does not match. <a href="./">Please start again</a>.</p>`;
+  } else {
+    box.innerHTML = `<h2 class="ok" style="margin-top:0">✓ TikTok account connected</h2>
+      <p>Your daily market overview will be delivered to your TikTok inbox as a draft after market close.
+         You decide in the TikTok app whether to publish it.</p>
+      <p class="muted">Server setup: copy this URL and paste it into <code>tiktok_auth.py</code> within a few minutes.</p>
+      <textarea id="url" readonly>${esc(location.href)}</textarea>
+      <p><button class="btn" id="copy">Copy URL</button></p>`;
+    document.getElementById("copy").onclick = async () => {
+      const t = document.getElementById("url");
+      try { await navigator.clipboard.writeText(t.value); } catch (e) { t.select(); document.execCommand("copy"); }
+      document.getElementById("copy").textContent = "Copied ✓";
+    };
+  }
+</script>
+</body>
+</html>
